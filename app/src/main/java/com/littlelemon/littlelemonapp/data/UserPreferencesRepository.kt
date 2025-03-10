@@ -31,7 +31,10 @@ class UserPreferencesRepository(context: Context) : UserPreferences {
     }
 
     override fun clearUserData() {
-        sharedPreferences.edit() { clear() }
+        sharedPreferences.edit() {
+            clear()
+            apply()
+        }
     }
 
     companion object {

@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -16,9 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.littlelemon.littlelemonapp.navigation.MyAppNavigation
-import com.littlelemon.littlelemonapp.ui.onboarding.Header
+import com.littlelemon.littlelemonapp.ui.composables.Header
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,19 +32,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LittleLemonAppTheme(dynamicColor = false) {
-                Scaffold(
-                    topBar = { Header() },
-                    modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MyApp(
-                        viewModel = viewModel,
-                        modifier = Modifier.padding(
-                            innerPadding
-                        )
+                        viewModel = viewModel
                     )
                 }
             }
         }
-    }
+
 }
 
 @Composable
@@ -53,6 +47,7 @@ fun MyApp(
     modifier: Modifier = Modifier) {
 
     val navController = rememberNavController()
+    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
     val onBoardingComplete by viewModel.onboardingComplete.collectAsStateWithLifecycle()
     val userLoggedIn by viewModel.userLoggedIn.collectAsStateWithLifecycle()
     val firstName by viewModel.firstName.collectAsStateWithLifecycle()
@@ -72,25 +67,37 @@ fun MyApp(
         }
     }
 
-     MyAppNavigation(
-        navController = navController,
-         onBoardingComplete = onBoardingComplete,
-         userLoggedIn = userLoggedIn,
-        firstName = firstName,
-        firstNameError = firstNameError,
-        onFirstNameChange = { viewModel.updateFirstName(it)},
-        lastName = lastName,
-        lastNameError = lastNameError,
-        onLastNameChange = { viewModel.updateLastName(it) },
-        email = email,
-        emailError = emailError,
-        onEmailChange = { viewModel.updateEmail(it) },
-        isFormValid = isFormValid,
-        onContinueClicked = { viewModel.validateAndRegister() },
-        modifier = modifier
-     )
+    Scaffold(
+        topBar = {
+            Header(
+                showProfile = currentDestination == Home.route,
+                firstName = firstName,
+                lastName = lastName,
+                onProfileClick = { navController.navigate(Profile.route) { launchSingleTop } }
+            )
+        },
+    ) {
 
+        MyAppNavigation(
+            navController = navController,
+            onBoardingComplete = onBoardingComplete,
+            userLoggedIn = userLoggedIn,
+            firstName = firstName,
+            firstNameError = firstNameError,
+            onFirstNameChange = { viewModel.updateFirstName(it) },
+            lastName = lastName,
+            lastNameError = lastNameError,
+            onLastNameChange = { viewModel.updateLastName(it) },
+            email = email,
+            emailError = emailError,
+            onEmailChange = { viewModel.updateEmail(it) },
+            isFormValid = isFormValid,
+            onContinueClicked = { viewModel.validateAndRegister() },
+            onLogout = { viewModel.logout() },
+            modifier = modifier.padding(it)
+        )
 
+    }
 }
 
 
