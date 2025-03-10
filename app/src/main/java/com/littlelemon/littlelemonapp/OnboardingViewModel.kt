@@ -42,6 +42,15 @@ class OnboardingViewModel(
     private val _userLoggedIn = MutableStateFlow(userPreferences.isLoggedIn())
     val userLoggedIn: StateFlow<Boolean> = _userLoggedIn.asStateFlow()
 
+    init {
+        // Load saved user data when ViewModel is created
+        userPreferences.getUserData()?.let { userData ->
+            _firstName.value = userData.firstName
+            _lastName.value = userData.lastName
+            _email.value = userData.email
+        }
+    }
+
     fun updateFirstName(name: String) {
         _firstName.value = name
         validateField(name, validator::validateName, _firstNameError)
@@ -107,6 +116,15 @@ class OnboardingViewModel(
         )
 
         _onboardingComplete.value = true
+    }
+
+    fun logout() {
+        userPreferences.clearUserData()
+        _userLoggedIn.value = false
+        _firstName.value = ""
+        _lastName.value = ""
+        _email.value = ""
+        _onboardingComplete.value = false
     }
 
 }

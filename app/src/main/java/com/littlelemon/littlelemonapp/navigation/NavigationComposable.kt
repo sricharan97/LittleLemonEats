@@ -43,6 +43,7 @@ fun MyAppNavigation(
     onEmailChange:(String) -> Unit,
     isFormValid:Boolean,
     onContinueClicked:() -> Unit,
+    onLogout: () -> Unit,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier) {
 
     val scope = rememberCoroutineScope()
@@ -99,7 +100,15 @@ fun MyAppNavigation(
           }
 
           composable(route = Profile.route) {
-              ProfileScreen()
+              ProfileScreen(
+                  firstname = firstName,
+                  lastname = lastName,
+                  email = email,
+                  onLogout = {
+                      onLogout()
+                      navController.navigateSingleTopTo(Onboarding.route)
+                  }
+              )
           }
 
           composable(

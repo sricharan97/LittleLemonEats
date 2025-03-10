@@ -1,6 +1,5 @@
 package com.littlelemon.littlelemonapp.ui.onboarding
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -24,11 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.littlelemon.littlelemonapp.R
+import com.littlelemon.littlelemonapp.ui.composables.ActionButton
+import com.littlelemon.littlelemonapp.ui.composables.Header
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
 
 @Composable
@@ -72,7 +68,7 @@ fun OnboardingScreen(
                 emailError = emailError,
                 onEmailChange = onEmailChange
             )
-            RegisterButton(onContinueClicked = {
+            ActionButton(onContinueClicked = {
                 validationMessage = if (isFormValid) {
                     "Registration successful!"
 
@@ -81,29 +77,10 @@ fun OnboardingScreen(
                 }
                 onShowMessage(validationMessage!!)
                 onContinueClicked()
-            })
+            }, label = "Register")
         }
 
     }
-
-
-
-
-@Composable
-fun Header(modifier: Modifier = Modifier) {
-    Surface (
-        modifier = modifier
-            .fillMaxWidth()
-            .height(100.dp)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.little_lemon_logo),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.padding(24.dp)
-        )
-    }
-}
 
 
 @Composable
@@ -157,18 +134,6 @@ fun InputField(inputName: String,
                 modifier = Modifier.fillMaxWidth())
         }
 
-}
-
-@Composable
-fun RegisterButton(onContinueClicked: () -> Unit, modifier: Modifier = Modifier) {
-    Button(onClick = onContinueClicked , modifier = modifier
-        .fillMaxWidth()
-        .padding(24.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = Color.Black)){
-        Text(text = "Register", style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(8.dp))
-    }
 }
 
 @Composable
@@ -239,7 +204,7 @@ private fun InputFieldPreview() {
 @Composable
 private fun ButtonPreview() {
   LittleLemonAppTheme(dynamicColor = false) {
-      RegisterButton(onContinueClicked = {})
+      ActionButton(onContinueClicked = {}, label = "Register")
   }
 
 }
