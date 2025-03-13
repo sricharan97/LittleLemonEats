@@ -2,15 +2,24 @@
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.littlelemon.littlelemonapp.data.MenuDatabase
+import com.littlelemon.littlelemonapp.data.MenuFetch
+import com.littlelemon.littlelemonapp.data.MenuRepository
 import com.littlelemon.littlelemonapp.data.UserPreferences
 import com.littlelemon.littlelemonapp.data.UserPreferencesRepository
+import com.littlelemon.littlelemonapp.network.MenuItemServiceImpl
 import com.littlelemon.littlelemonapp.utils.Validator
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val menuFetch: MenuFetch
 ) : ViewModel() {
 
     private val validator = Validator()
@@ -42,12 +51,36 @@ class OnboardingViewModel(
     private val _userLoggedIn = MutableStateFlow(userPreferences.isLoggedIn())
     val userLoggedIn: StateFlow<Boolean> = _userLoggedIn.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    val menuItems = menuFetch.menuItems.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
+
     init {
         // Load saved user data when ViewModel is created
         userPreferences.getUserData()?.let { userData ->
             _firstName.value = userData.firstName
             _lastName.value = userData.lastName
             _email.value = userData.email
+        }
+
+        refreshMenuItems()
+    }
+
+    private fun refreshMenuItems() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                menuFetch.refreshMenu()
+            } catch (e: Exception) {
+                // Handle error
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
@@ -132,8 +165,14 @@ class OnboardingViewModel(
 class OnboardingViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(OnboardingViewModel::class.java)) {
+            val menuService = MenuItemServiceImpl()
+            val database = MenuDatabase.getDatabase(context)
+            val menuRepository = MenuRepository(menuService, database)
             @Suppress("UNCHECKED_CAST")
-            return OnboardingViewModel(UserPreferencesRepository(context)) as T
+            return OnboardingViewModel(
+                UserPreferencesRepository(context),
+                menuFetch = menuRepository
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
