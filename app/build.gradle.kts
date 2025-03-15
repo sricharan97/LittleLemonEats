@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.littlelemon.littlelemonapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.littlelemon.littlelemonapp"
@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.kotlinx.metadata.jvm)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

@@ -15,13 +15,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.littlelemon.HomeScreen
 import com.example.littlelemon.MenuListScreen
 import com.littlelemon.littlelemonapp.Home
 import com.littlelemon.littlelemonapp.MenuItem
 import com.littlelemon.littlelemonapp.MenuList
 import com.littlelemon.littlelemonapp.Onboarding
 import com.littlelemon.littlelemonapp.Profile
+import com.littlelemon.littlelemonapp.ui.home.HomeScreen
 import com.littlelemon.littlelemonapp.ui.menu.MenuItemScreen
 import com.littlelemon.littlelemonapp.ui.onboarding.OnboardingScreen
 import com.littlelemon.littlelemonapp.ui.profile.ProfileScreen
