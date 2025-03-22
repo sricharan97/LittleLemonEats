@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -52,76 +54,135 @@ fun HomeScreen(
     onSearchPhraseChange: (String) -> Unit = {},
     menuItems : List<MenuItemEntity> =  emptyList()
 ) {
-
     var selectedCategory by rememberSaveable { mutableStateOf("") }
-
-    Column {
-        Column(
-            modifier = Modifier
-                .background(Color(0xFF495E57))
-                .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 16.dp)
-        ) {
-            Text(
-                text = stringResource(id =R.string.title ),
-                fontSize = 40.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFF4CE14)
-            )
-            Text(
-                text = stringResource(id = R.string.location),
-                fontSize = 24.sp,
-                color = Color(0xFFEDEFEE)
-            )
-            Row(
+    
+    // Using LazyColumn for the entire screen to make it scrollable
+    LazyColumn {
+        // Header section as a single item
+        item {
+            Column(
                 modifier = Modifier
-                    .padding(top = 16.dp)
+                    .background(Color(0xFF495E57))
+                    .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 16.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.description),
-                    color = Color(0xFFEDEFEE),
-                    fontSize = 18.sp,
-                    modifier = Modifier
-                        .padding(bottom = 28.dp)
-                        .fillMaxWidth(0.6f)
+                    text = stringResource(id =R.string.title ),
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFF4CE14)
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.upperpanelimage),
-                    contentDescription = "Upper Panel Image",
-                    modifier = Modifier.clip(RoundedCornerShape(20.dp))
+                Text(
+                    text = stringResource(id = R.string.location),
+                    fontSize = 24.sp,
+                    color = Color(0xFFEDEFEE)
+                )
+                Row(
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.description),
+                        color = Color(0xFFEDEFEE),
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .padding(bottom = 28.dp)
+                            .fillMaxWidth(0.6f)
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.upperpanelimage),
+                        contentDescription = "Upper Panel Image",
+                        modifier = Modifier.clip(RoundedCornerShape(20.dp))
+                    )
+                }
+                // Search bar instead of order button
+                OutlinedTextField(
+                    value = searchPhrase,
+                    onValueChange = onSearchPhraseChange,
+                    placeholder = { Text("Search menu") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top =24.dp),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search icon"
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFF4CE14),
+                        unfocusedBorderColor = Color(0xFFEDEFEE),
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    singleLine = true
                 )
             }
-            // Search bar instead of order button
-            OutlinedTextField(
-                value = searchPhrase,
-                onValueChange = onSearchPhraseChange,
-                placeholder = { Text("Search menu") },
+        }
+        
+        // Order for takeaway section
+        item {
+            Text(
+                text = stringResource(id = R.string.order_for_takeaway),
+                fontSize = 24.sp,
+                fontWeight = Bold,
+                textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top =24.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search icon"
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFFF4CE14),
-                    unfocusedBorderColor = Color(0xFFEDEFEE),
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White
-                ),
-                shape = RoundedCornerShape(8.dp),
-                singleLine = true
+                    .padding(8.dp)
             )
         }
-        LowerPanel(
-            menuItems = menuItems,
-            searchPhrase = searchPhrase,
-            selectedCategory = selectedCategory,
-            onCategorySelected = { category ->
-                selectedCategory = if (selectedCategory != category) category
-                else ""
-            })
+        
+        // Category section
+        item {
+            // Extract unique categories from menu items
+            val categoriesMap = menuItems.map { it.category }.distinct()
+                .associateBy ({ it.replaceFirstChar { c -> c.uppercase() } }, { it })
+            val displayCategories = categoriesMap.keys.toList()
+            
+            LazyRow {
+                items(displayCategories) { displayCategory ->
+                    MenuCategory(
+                        category = displayCategory,
+                        isSelected = displayCategory == selectedCategory,
+                        onclick = {
+                            selectedCategory = if (selectedCategory != displayCategory) displayCategory else ""
+                        }
+
+                    )
+                }
+            }
+            
+            HorizontalDivider(
+                modifier = Modifier.padding(8.dp),
+                thickness = 1.dp,
+                color = Color.Gray
+            )
+        }
+        
+        // Filter menu items based on search phrase and category
+        val filteredMenuItems = menuItems.filter {menuItem ->
+            //search the text filter
+            (searchPhrase.isBlank() ||
+                    menuItem.title.contains(searchPhrase, ignoreCase = true) ||
+                    menuItem.description.contains(searchPhrase, ignoreCase = true)) &&
+                    //Category filter if selected
+                    (selectedCategory.isEmpty() || menuItem.category.equals(
+                        menuItems.map { it.category }.distinct()
+                            .associateBy ({ it.replaceFirstChar { c -> c.uppercase() } }, { it })[selectedCategory], 
+                        ignoreCase = true)
+                    )
+        }
+        
+        // Menu items section
+        items(filteredMenuItems) { menuItem ->
+            MenuDish(menuItem)
+        }
+    }
+    
+    // Helper function to handle category selection
+    fun onCategorySelected(category: String) {
+        selectedCategory = if (selectedCategory != category) category else ""
     }
 }
 
