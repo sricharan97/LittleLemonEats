@@ -74,7 +74,7 @@ fun HomeScreen(
             )
             Row(
                 modifier = Modifier
-                    .padding(top = 18.dp)
+                    .padding(top = 16.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.description),

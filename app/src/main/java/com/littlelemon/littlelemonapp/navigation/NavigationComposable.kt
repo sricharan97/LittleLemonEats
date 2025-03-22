@@ -1,6 +1,8 @@
 package com.littlelemon.littlelemonapp.navigation
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -11,6 +13,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -66,7 +70,10 @@ fun MyAppNavigation(
       NavHost(
           navController = navController,
           startDestination = if (userLoggedIn) Home.route else Onboarding.route,
-          modifier = modifier.padding(padding)
+          modifier = modifier.padding(bottom = padding.calculateBottomPadding(),
+              start = padding.calculateStartPadding(LayoutDirection.Ltr),
+              end = padding.calculateEndPadding(LayoutDirection.Ltr),
+              top = 8.dp)
       ) {
           composable(route = Home.route) {
               HomeScreen(

@@ -29,7 +29,7 @@ fun Header(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(80.dp)
             .padding(top = 8.dp)
     ) {
 
@@ -42,7 +42,7 @@ fun Header(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp)
+                    .padding(8.dp)
 
             )
 
