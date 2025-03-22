@@ -1,0 +1,9 @@
+<svg width="200" height="150" viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#E0E0E0" />
+  <circle cx="100" cy="75" r="30" fill="#BDBDBD">
+    <animate attributeName="opacity" from="1" to="0.2" dur="1s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="100" cy="75" r="20" fill="#9E9E9E">
+    <animate attributeName="opacity" from="0.2" to="1" dur="1s" repeatCount="indefinite" />
+  </circle>
+</svg>
