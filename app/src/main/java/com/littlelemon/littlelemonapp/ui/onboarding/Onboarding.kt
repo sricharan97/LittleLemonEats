@@ -115,7 +115,7 @@ fun InputField(inputName: String,
 
         Column(modifier = modifier
             .padding(start = 16.dp, end = 32.dp, top = 16.dp, bottom = 16.dp)
-            .background(Color.White)) {
+            ) {
             Text(
                 text = inputName,
                 modifier = Modifier.padding(bottom = 8.dp)

@@ -47,6 +47,7 @@ import com.bumptech.glide.integration.compose.placeholder
 import com.littlelemon.littlelemonapp.R
 import com.littlelemon.littlelemonapp.data.MenuItemEntity
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
+import com.littlelemon.littlelemonapp.ui.theme.Yellow80
 
 @Composable
 fun HomeScreen(
@@ -67,14 +68,13 @@ fun HomeScreen(
             ) {
                 Text(
                     text = stringResource(id =R.string.title ),
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFF4CE14)
+                    style = MaterialTheme.typography.displayLarge,
+                    color = MaterialTheme.colorScheme.secondary
                 )
                 Text(
                     text = stringResource(id = R.string.location),
-                    fontSize = 24.sp,
-                    color = Color(0xFFEDEFEE)
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
                 Row(
                     modifier = Modifier
@@ -82,8 +82,8 @@ fun HomeScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.description),
-                        color = Color(0xFFEDEFEE),
-                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier
                             .padding(bottom = 28.dp)
                             .fillMaxWidth(0.6f)
@@ -124,8 +124,7 @@ fun HomeScreen(
         item {
             Text(
                 text = stringResource(id = R.string.order_for_takeaway),
-                fontSize = 24.sp,
-                fontWeight = Bold,
+                style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -180,10 +179,7 @@ fun HomeScreen(
         }
     }
     
-    // Helper function to handle category selection
-    fun onCategorySelected(category: String) {
-        selectedCategory = if (selectedCategory != category) category else ""
-    }
+
 }
 
 @Composable
@@ -255,15 +251,17 @@ fun MenuDish(menuItem: MenuItemEntity) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(16.dp)
         ) {
             Column {
                 Text(
-                    text = menuItem.title, fontSize = 18.sp, fontWeight = Bold
+                    text = menuItem.title,
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
                     text = menuItem.description,
                     color = Color.Gray,
+                    style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
                         .padding(top = 5.dp, bottom = 5.dp)
                         .fillMaxWidth(.75f)
@@ -271,7 +269,7 @@ fun MenuDish(menuItem: MenuItemEntity) {
                 Text(
                     text = "$${menuItem.price}",
                     color = Color.Gray,
-                    fontWeight = Bold
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             // Use GlideImage to load from URL
@@ -314,7 +312,8 @@ fun MenuCategory(
         modifier = Modifier.padding(5.dp)
     ) {
         Text(
-            text = category
+            text = category,
+            style = MaterialTheme.typography.titleMedium,
         )
     }
 }
