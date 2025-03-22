@@ -1,7 +1,5 @@
 package com.littlelemon.littlelemonapp
 
-import OnboardingViewModel
-import OnboardingViewModelFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,7 +27,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             LittleLemonAppTheme(dynamicColor = false) {
                     MyApp(
@@ -57,6 +54,8 @@ fun MyApp(
     val email by viewModel.email.collectAsStateWithLifecycle()
     val emailError by viewModel.emailError.collectAsStateWithLifecycle()
     val isFormValid by viewModel.isFormValid.collectAsStateWithLifecycle()
+    val menuItems by viewModel.menuItems.collectAsStateWithLifecycle()
+    val searchPhrase by viewModel.searchPhrase.collectAsStateWithLifecycle()
 
     // Navigate when onBoardingComplete changes
     LaunchedEffect(onBoardingComplete) {
@@ -76,8 +75,7 @@ fun MyApp(
                 onProfileClick = { navController.navigate(Profile.route) { launchSingleTop } }
             )
         },
-    ) {
-
+    ) {scaffoldPadding ->
         MyAppNavigation(
             navController = navController,
             onBoardingComplete = onBoardingComplete,
@@ -94,7 +92,10 @@ fun MyApp(
             isFormValid = isFormValid,
             onContinueClicked = { viewModel.validateAndRegister() },
             onLogout = { viewModel.logout() },
-            modifier = modifier.padding(it)
+            menuItems = menuItems,
+            searchPhrase = searchPhrase,
+            onSearchPhraseChange = { phrase -> viewModel.updateSearchPhrase(phrase) },
+            modifier = modifier.padding(scaffoldPadding)
         )
 
     }

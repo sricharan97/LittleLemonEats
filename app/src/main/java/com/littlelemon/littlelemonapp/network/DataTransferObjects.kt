@@ -1,5 +1,6 @@
 package com.littlelemon.littlelemonapp.network
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -23,7 +24,7 @@ data class MenuItemNetwork(
     val title: String,
     val description: String,
     val price: Int,
-    val imageUrl: String,
+    @SerialName("image") val imageUrl: String,
     val category: String
 )
 

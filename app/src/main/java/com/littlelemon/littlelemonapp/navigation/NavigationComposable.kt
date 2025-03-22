@@ -15,12 +15,12 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.littlelemon.MenuListScreen
 import com.littlelemon.littlelemonapp.Home
 import com.littlelemon.littlelemonapp.MenuItem
 import com.littlelemon.littlelemonapp.MenuList
 import com.littlelemon.littlelemonapp.Onboarding
 import com.littlelemon.littlelemonapp.Profile
+import com.littlelemon.littlelemonapp.data.MenuItemEntity
 import com.littlelemon.littlelemonapp.ui.home.HomeScreen
 import com.littlelemon.littlelemonapp.ui.menu.MenuItemScreen
 import com.littlelemon.littlelemonapp.ui.onboarding.OnboardingScreen
@@ -44,6 +44,9 @@ fun MyAppNavigation(
     isFormValid:Boolean,
     onContinueClicked:() -> Unit,
     onLogout: () -> Unit,
+    menuItems: List<MenuItemEntity> = emptyList(),
+    searchPhrase: String = "",
+    onSearchPhraseChange: (String) -> Unit = {},
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier) {
 
     val scope = rememberCoroutineScope()
@@ -66,9 +69,11 @@ fun MyAppNavigation(
           modifier = modifier.padding(padding)
       ) {
           composable(route = Home.route) {
-              HomeScreen(onOrderTakeAway = {
-                  navController.navigate(MenuList.route)
-              })
+              HomeScreen(
+                  searchPhrase = searchPhrase,
+                    onSearchPhraseChange = onSearchPhraseChange,
+                    menuItems = menuItems,
+              )
           }
           composable(route = Onboarding.route) {
               OnboardingScreen(
@@ -95,9 +100,7 @@ fun MyAppNavigation(
               )
           }
 
-          composable(route = MenuList.route) {
-              MenuListScreen()
-          }
+
 
           composable(route = Profile.route) {
               ProfileScreen(

@@ -1,6 +1,7 @@
 // OnboardingViewModel.kt
 package com.littlelemon.littlelemonapp
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+private const val TAG = "OnboardingViewModel"
 
 class OnboardingViewModel(
     private val userPreferences: UserPreferences,
@@ -55,6 +58,9 @@ class OnboardingViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _searchPhrase = MutableStateFlow("")
+    val searchPhrase: StateFlow<String> = _searchPhrase.asStateFlow()
+
     val menuItems = menuFetch.menuItems.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -76,13 +82,20 @@ class OnboardingViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                Log.d("OnboardingViewModel", "Starting menu refresh")
                 menuFetch.refreshMenu()
+                Log.d("OnboardingViewModel", "Menu refresh completed successfully")
             } catch (e: Exception) {
                 // Handle error
+                Log.e("OnboardingViewModel", "Menu refresh failed", e)
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    fun updateSearchPhrase(phrase: String) {
+        _searchPhrase.value = phrase
     }
 
     fun updateFirstName(name: String) {

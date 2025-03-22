@@ -30,7 +30,7 @@ fun Header(
         modifier = modifier
             .fillMaxWidth()
             .height(100.dp)
-            .padding(top = 8.dp),
+            .padding(top = 8.dp)
     ) {
 
         Box(
