@@ -5,8 +5,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.littlelemon.littlelemonapp.data.CartItem
 import com.littlelemon.littlelemonapp.data.MenuDatabase
 import com.littlelemon.littlelemonapp.data.MenuFetch
+import com.littlelemon.littlelemonapp.data.MenuItemEntity
 import com.littlelemon.littlelemonapp.data.MenuRepository
 import com.littlelemon.littlelemonapp.data.UserPreferences
 import com.littlelemon.littlelemonapp.data.UserPreferencesRepository
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 private const val TAG = "MainViewModel"
+
 
 class MainViewModel(
     private val userPreferences: UserPreferences,
@@ -60,6 +63,9 @@ class MainViewModel(
 
     private val _searchPhrase = MutableStateFlow("")
     val searchPhrase: StateFlow<String> = _searchPhrase.asStateFlow()
+
+    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
+    val cartItems = _cartItems.asStateFlow()
 
     val menuItems = menuFetch.menuItems.stateIn(
         viewModelScope,
@@ -172,6 +178,22 @@ class MainViewModel(
         _lastName.value = ""
         _email.value = ""
         _onboardingComplete.value = false
+    }
+
+    fun addToCart(menuItem: MenuItemEntity, quantity: Int) {
+        val currentCart = _cartItems.value.toMutableList()
+        val existingItem = currentCart.find { it.menuItem.id == menuItem.id }
+        if (existingItem != null) {
+            // Update quantity
+            existingItem.quantity += quantity
+        } else {
+            currentCart.add(CartItem(menuItem, quantity))
+        }
+        _cartItems.value = currentCart
+    }
+
+    fun clearCart() {
+        _cartItems.value = emptyList()
     }
 
 }

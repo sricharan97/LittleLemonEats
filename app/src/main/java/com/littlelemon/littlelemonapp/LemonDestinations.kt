@@ -33,6 +33,6 @@ object MenuItem : LemonDestination {
     )
 }
 
-object MenuList : LemonDestination {
-    override val route = "menu_list"
+object Checkout : LemonDestination {
+    override val route = "checkout"
 }

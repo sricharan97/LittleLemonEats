@@ -19,11 +19,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.littlelemon.littlelemonapp.Checkout
 import com.littlelemon.littlelemonapp.Home
 import com.littlelemon.littlelemonapp.MenuItem
-import com.littlelemon.littlelemonapp.MenuList
 import com.littlelemon.littlelemonapp.Onboarding
 import com.littlelemon.littlelemonapp.Profile
+import com.littlelemon.littlelemonapp.checkout.CheckoutScreen
+import com.littlelemon.littlelemonapp.data.CartItem
 import com.littlelemon.littlelemonapp.data.MenuItemEntity
 import com.littlelemon.littlelemonapp.ui.home.HomeScreen
 import com.littlelemon.littlelemonapp.ui.menu.MenuItemScreen
@@ -51,6 +53,9 @@ fun MyAppNavigation(
     menuItems: List<MenuItemEntity> = emptyList(),
     searchPhrase: String = "",
     onSearchPhraseChange: (String) -> Unit = {},
+    cartItems: List<CartItem>,
+    onAddToCart: (MenuItemEntity, Int) -> Unit,
+    onClearCart: () -> Unit,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier) {
 
     val scope = rememberCoroutineScope()
@@ -124,6 +129,23 @@ fun MyAppNavigation(
               )
           }
 
+          composable(route = Checkout.route) {
+              CheckoutScreen(
+                  cartItems = cartItems,
+                  onPlaceOrder = {
+
+                      scope.launch {
+                          snackbarHostState.showSnackbar(
+                              message = "Order placed successfully! The restaurant will prepare your food.",
+                              duration = SnackbarDuration.Long
+                          )
+                      }
+                      onClearCart()
+                      navController.navigateSingleTopTo(Home.route)
+                  }
+              )
+          }
+
           composable(
               route = MenuItem.routeWithArgs,
               arguments = MenuItem.arguments
@@ -132,14 +154,7 @@ fun MyAppNavigation(
               MenuItemScreen(
                   itemId = itemId,
                   menuItems = menuItems,
-                  onAddToOrder = { menuItem, quantity ->
-                      scope.launch {
-                          snackbarHostState.showSnackbar(
-                              message = "Added $quantity ${menuItem.title} to order",
-                              duration = SnackbarDuration.Short
-                          )
-                      }
-                  }
+                  onAddToOrder = onAddToCart
               )
           }
       }

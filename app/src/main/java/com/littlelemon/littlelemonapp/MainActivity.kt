@@ -11,19 +11,25 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
 import com.littlelemon.littlelemonapp.navigation.MyAppNavigation
 import com.littlelemon.littlelemonapp.ui.composables.Header
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
@@ -67,6 +73,8 @@ fun MyApp(
     val emailError by viewModel.emailError.collectAsStateWithLifecycle()
     val isFormValid by viewModel.isFormValid.collectAsStateWithLifecycle()
     val menuItems by viewModel.menuItems.collectAsStateWithLifecycle()
+    val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
+    val cartItemCount = cartItems.sumOf { it.quantity }
     val searchPhrase by viewModel.searchPhrase.collectAsStateWithLifecycle()
 
     // Navigate when onBoardingComplete changes
@@ -109,6 +117,27 @@ fun MyApp(
                 )
             )
         },
+        floatingActionButton = {
+            if (currentDestination != Checkout.route) {  // Don't show on checkout screen
+                FloatingActionButton(
+                    onClick = { navController.navigate(Checkout.route) },
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    BadgedBox(
+                        badge = {
+                            if (cartItemCount > 0) {
+                                Badge { Text("$cartItemCount") }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingCart,
+                            contentDescription = "Cart"
+                        )
+                    }
+                }
+            }
+        },
         contentWindowInsets =  WindowInsets(0,0,0,0) // Reset default window insets
     ) {scaffoldPadding ->
         MyAppNavigation(
@@ -130,6 +159,10 @@ fun MyApp(
             menuItems = menuItems,
             searchPhrase = searchPhrase,
             onSearchPhraseChange = { phrase -> viewModel.updateSearchPhrase(phrase) },
+            cartItems = cartItems,
+            // Updated onAddToOrder sends items to the cart
+            onAddToCart = { menuItem, quantity -> viewModel.addToCart(menuItem, quantity) },
+            onClearCart = { viewModel.clearCart() },
             modifier = modifier.padding(
                 top = scaffoldPadding.calculateTopPadding(),
                 bottom = 0.dp)
@@ -138,10 +171,5 @@ fun MyApp(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LittleLemonAppTheme {
 
-    }
-}
+
