@@ -10,9 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.littlelemon.littlelemonapp.data.CartItem
+import com.littlelemon.littlelemonapp.ui.composables.ActionButton
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -91,7 +91,11 @@ fun CheckoutScreen(
                     }
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                )
 
                 Row(
                     modifier = Modifier
@@ -112,13 +116,11 @@ fun CheckoutScreen(
                 }
             }
 
-            Button(
-                onClick = onPlaceOrder,
-                modifier = Modifier.fillMaxWidth(),
+            ActionButton(
+                onContinueClicked = onPlaceOrder,
+                label = "Place Order",
                 enabled = cartItems.isNotEmpty()
-            ) {
-                Text("Place Order")
-            }
+            )
         }
     }
 }
@@ -132,3 +134,4 @@ private fun formatPrice(price: Double): String {
 fun CheckoutScreenPreview() {
     CheckoutScreen()
 }
+

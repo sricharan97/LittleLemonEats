@@ -12,18 +12,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ActionButton(onContinueClicked: () -> Unit, label: String, modifier: Modifier = Modifier) {
+fun ActionButton(
+    onContinueClicked: () -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
     Button(
-        onClick = onContinueClicked, modifier = modifier
+        onClick = onContinueClicked,
+        modifier = modifier
             .fillMaxWidth()
             .padding(24.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondary,
             contentColor = Color.Black
-        )
+        ),
+        enabled = enabled
     ) {
         Text(
-            text = label, style = MaterialTheme.typography.titleMedium,
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(8.dp)
         )
     }

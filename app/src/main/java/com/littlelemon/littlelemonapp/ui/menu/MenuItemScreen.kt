@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -41,7 +40,6 @@ import com.littlelemon.littlelemonapp.R
 import com.littlelemon.littlelemonapp.data.MenuItemEntity
 import com.littlelemon.littlelemonapp.ui.composables.ActionButton
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
-import java.nio.file.WatchEvent
 import java.text.NumberFormat
 import java.util.Locale
 
