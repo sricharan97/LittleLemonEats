@@ -17,20 +17,18 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.littlelemon.littlelemonapp.navigation.MyAppNavigation
+import com.littlelemon.littlelemonapp.navigation.navigateSingleTopTo
 import com.littlelemon.littlelemonapp.ui.composables.Header
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
 
@@ -45,13 +43,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LittleLemonAppTheme(dynamicColor = false) {
-                    MyApp(
-                        viewModel = viewModel
-                    )
-                }
+                MyApp(viewModel = viewModel)
             }
         }
-
+    }
 }
 
 @Composable
@@ -60,9 +55,9 @@ fun MyApp(
     modifier: Modifier = Modifier) {
 
     val navController = rememberNavController()
-    // Save the current route in rememberSaveable
-    var currentRoute by rememberSaveable { mutableStateOf<String?>(null) }
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+
+    // Collect states
     val onBoardingComplete by viewModel.onboardingComplete.collectAsStateWithLifecycle()
     val userLoggedIn by viewModel.userLoggedIn.collectAsStateWithLifecycle()
     val firstName by viewModel.firstName.collectAsStateWithLifecycle()
@@ -77,51 +72,29 @@ fun MyApp(
     val cartItemCount = cartItems.sumOf { it.quantity }
     val searchPhrase by viewModel.searchPhrase.collectAsStateWithLifecycle()
 
-    // Navigate when onBoardingComplete changes
-    LaunchedEffect(onBoardingComplete) {
-        if (onBoardingComplete) {
-            navController.navigate(Home.route) {
-                popUpTo(Onboarding.route) { inclusive = true }
-            }
-        }
-    }
-
-    // Update saved route when destination changes
-    LaunchedEffect(currentDestination) {
-        currentDestination?.let {
-            currentRoute = it
-        }
-    }
-
-    // Restore navigation on configuration change
-    LaunchedEffect(currentRoute) {
-        currentRoute?.let { route ->
-            if (currentDestination != route) {
-                navController.navigate(route) {
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-        }
-    }
-
     Scaffold(
         topBar = {
             Header(
                 showProfile = currentDestination == Home.route,
                 firstName = firstName,
                 lastName = lastName,
-                onProfileClick = { navController.navigate(Profile.route) { launchSingleTop = true } },
+                onProfileClick = {
+                    navController.navigateSingleTopTo(Profile.route)
+                },
                 modifier = Modifier.windowInsetsPadding(
                     WindowInsets.statusBars.only(WindowInsetsSides.Top)
                 )
             )
         },
         floatingActionButton = {
-            if (currentDestination != Checkout.route) {  // Don't show on checkout screen
+            if (currentDestination != Checkout.route && currentDestination != Onboarding.route) {  // Don't show on checkout or onboarding screens
                 FloatingActionButton(
-                    onClick = { navController.navigate(Checkout.route) },
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    onClick = {
+                        // Updated to use extension function for consistent navigation behavior
+                        navController.navigateSingleTopTo(Checkout.route)
+                    },
+                    modifier = Modifier.padding(bottom = 120.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
                 ) {
                     BadgedBox(
                         badge = {
@@ -138,8 +111,8 @@ fun MyApp(
                 }
             }
         },
-        contentWindowInsets =  WindowInsets(0,0,0,0) // Reset default window insets
-    ) {scaffoldPadding ->
+        contentWindowInsets = WindowInsets(0, 0, 0, 0) // Reset default window insets
+    ) { scaffoldPadding ->
         MyAppNavigation(
             navController = navController,
             onBoardingComplete = onBoardingComplete,
@@ -160,16 +133,12 @@ fun MyApp(
             searchPhrase = searchPhrase,
             onSearchPhraseChange = { phrase -> viewModel.updateSearchPhrase(phrase) },
             cartItems = cartItems,
-            // Updated onAddToOrder sends items to the cart
             onAddToCart = { menuItem, quantity -> viewModel.addToCart(menuItem, quantity) },
             onClearCart = { viewModel.clearCart() },
             modifier = modifier.padding(
                 top = scaffoldPadding.calculateTopPadding(),
-                bottom = 0.dp)
+                bottom = 0.dp
+            )
         )
-
     }
 }
-
-
-
