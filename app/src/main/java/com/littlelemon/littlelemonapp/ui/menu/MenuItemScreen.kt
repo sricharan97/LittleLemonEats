@@ -39,6 +39,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.littlelemon.littlelemonapp.R
 import com.littlelemon.littlelemonapp.data.MenuItemEntity
+import com.littlelemon.littlelemonapp.ui.composables.ActionButton
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
 import java.nio.file.WatchEvent
 import java.text.NumberFormat
@@ -195,16 +196,11 @@ fun MenuItemScreen(
         // Add to Order button outside of scrollable area, at the bottom
         Spacer(modifier = Modifier.height(16.dp))
         
-        Button(
-            onClick = { onAddToOrder(menuItem, quantity) },
-            modifier = Modifier.fillMaxWidth()
-        ){
-            Text(
-                text = "ADD TO ORDER - ${formatPrice(menuItem.price.toDouble() * quantity)}",
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
+        ActionButton(
+            onContinueClicked = { onAddToOrder(menuItem, quantity) },
+            label = "ADD TO ORDER - ${formatPrice(menuItem.price.toDouble() * quantity)}",
+            modifier = Modifier.padding(0.dp)
+        )
     }
     
 }

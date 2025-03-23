@@ -1,4 +1,4 @@
-// OnboardingViewModel.kt
+// MainViewModel.kt
 package com.littlelemon.littlelemonapp
 import android.content.Context
 import android.util.Log
@@ -19,9 +19,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-private const val TAG = "OnboardingViewModel"
+private const val TAG = "MainViewModel"
 
-class OnboardingViewModel(
+class MainViewModel(
     private val userPreferences: UserPreferences,
     private val menuFetch: MenuFetch
 ) : ViewModel() {
@@ -176,14 +176,14 @@ class OnboardingViewModel(
 
 }
 
-class OnboardingViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(OnboardingViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             val menuService = MenuItemServiceImpl()
             val database = MenuDatabase.getDatabase(context)
             val menuRepository = MenuRepository(menuService, database)
             @Suppress("UNCHECKED_CAST")
-            return OnboardingViewModel(
+            return MainViewModel(
                 UserPreferencesRepository(context),
                 menuFetch = menuRepository
             ) as T

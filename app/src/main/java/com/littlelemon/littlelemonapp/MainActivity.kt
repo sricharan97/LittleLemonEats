@@ -21,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavHostController
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
@@ -31,8 +30,8 @@ import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel: OnboardingViewModel by viewModels{
-        OnboardingViewModelFactory(applicationContext)
+    private val viewModel: MainViewModel by viewModels{
+        MainViewModelFactory(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp(
-    viewModel: OnboardingViewModel,
+    viewModel: MainViewModel,
     modifier: Modifier = Modifier) {
 
     val navController = rememberNavController()

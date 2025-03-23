@@ -249,8 +249,8 @@ fun MenuCategory(
     isSelected: Boolean = false,
     onclick: () -> Unit = {}
 ) {
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
-    val contentColor = if (isSelected) Color.White else Color.Black
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.secondary else Color.LightGray
+    val contentColor =  Color.Black
 
     Button(
         onClick = onclick,
