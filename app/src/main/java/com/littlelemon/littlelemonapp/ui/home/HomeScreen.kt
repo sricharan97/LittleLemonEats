@@ -2,6 +2,7 @@ package com.littlelemon.littlelemonapp.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -53,7 +54,8 @@ import com.littlelemon.littlelemonapp.ui.theme.Yellow80
 fun HomeScreen(
     searchPhrase: String = "",
     onSearchPhraseChange: (String) -> Unit = {},
-    menuItems : List<MenuItemEntity> =  emptyList()
+    menuItems : List<MenuItemEntity> =  emptyList(),
+    onMenuItemClick: (MenuItemEntity) -> Unit = {}
 ) {
     var selectedCategory by rememberSaveable { mutableStateOf("") }
     
@@ -175,79 +177,26 @@ fun HomeScreen(
         
         // Menu items section
         items(filteredMenuItems) { menuItem ->
-            MenuDish(menuItem)
+            MenuDish(
+                menuItem = menuItem,
+                onClick = { onMenuItemClick(menuItem) })
         }
     }
     
 
 }
 
-@Composable
-private fun LowerPanel(
-    menuItems: List<MenuItemEntity> = emptyList(),
-    searchPhrase: String = "",
-    selectedCategory: String = "",
-    onCategorySelected: (String) -> Unit = {}
-) {
-
-    // Extract unique categories from menu items
-    val categoriesMap = menuItems.map { it.category }.distinct()
-        .associateBy ({ it.replaceFirstChar { c -> c.uppercase() } }, { it })
-    val displayCategories = categoriesMap.keys.toList()
-
-    // Filter menu items based on search phrase
-    val filteredMenuItems = menuItems.filter {menuItem ->
-        //search the text filter
-        (searchPhrase.isBlank() ||
-                menuItem.title.contains(searchPhrase, ignoreCase = true) ||
-                menuItem.description.contains(searchPhrase, ignoreCase = true)) &&
-                //Category filter if selected
-                (selectedCategory.isEmpty() || menuItem.category.equals(categoriesMap[selectedCategory], ignoreCase = true))
-
-    }
-
-    Column {
-
-        Text(
-            text = stringResource(id = R.string.order_for_takeaway),
-            fontSize = 24.sp,
-            fontWeight = Bold,
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-        LazyRow {
-
-            items(displayCategories) { displayCategory ->
-                MenuCategory(
-                    category = displayCategory,
-                    isSelected = displayCategory == selectedCategory,
-                    onclick = { onCategorySelected(displayCategory) })
-            }
-        }
-        HorizontalDivider(
-            modifier = Modifier.padding(8.dp),
-            thickness = 1.dp,
-            color = Color.Gray
-        )
-        LazyColumn {
-            items(filteredMenuItems) { menuItem ->
-                MenuDish(menuItem)
-            }
-        }
-    }
-}
-
-
-
 
 
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun MenuDish(menuItem: MenuItemEntity) {
-    Card {
+fun MenuDish(
+    menuItem: MenuItemEntity,
+    onClick: () -> Unit = {}) {
+    Card(
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -330,13 +279,7 @@ val previewCategories = listOf(
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun LowerPanelPreview() {
-    LittleLemonAppTheme(dynamicColor = false)  {
-        LowerPanel()
-    }
-}
+
 
 @Preview(showBackground = true)
 @Composable

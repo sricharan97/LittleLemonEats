@@ -80,6 +80,9 @@ fun MyAppNavigation(
                   searchPhrase = searchPhrase,
                     onSearchPhraseChange = onSearchPhraseChange,
                     menuItems = menuItems,
+                  onMenuItemClick = {
+                        navController.navigateToMenuItem(it.id.toString())
+                  }
               )
           }
           composable(route = Onboarding.route) {
@@ -126,7 +129,18 @@ fun MyAppNavigation(
               arguments = MenuItem.arguments
           ) { backStackEntry ->
               val itemId = backStackEntry.arguments?.getString(MenuItem.itemIdArg)
-              MenuItemScreen(itemId)
+              MenuItemScreen(
+                  itemId = itemId,
+                  menuItems = menuItems,
+                  onAddToOrder = { menuItem, quantity ->
+                      scope.launch {
+                          snackbarHostState.showSnackbar(
+                              message = "Added $quantity ${menuItem.title} to order",
+                              duration = SnackbarDuration.Short
+                          )
+                      }
+                  }
+              )
           }
       }
   }
