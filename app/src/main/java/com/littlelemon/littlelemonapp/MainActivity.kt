@@ -1,6 +1,7 @@
 package com.littlelemon.littlelemonapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -23,6 +25,8 @@ import com.littlelemon.littlelemonapp.navigation.MyAppNavigation
 import com.littlelemon.littlelemonapp.navigation.navigateSingleTopTo
 import com.littlelemon.littlelemonapp.ui.composables.Header
 import com.littlelemon.littlelemonapp.ui.theme.LittleLemonAppTheme
+
+private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
 
@@ -47,7 +51,17 @@ fun MyApp(
     modifier: Modifier = Modifier) {
 
     val navController = rememberNavController()
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
+    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+    val currentDestination = currentBackStackEntry?.destination?.route
+
+    // Monitor navigation changes
+    LaunchedEffect(currentDestination) {
+        Log.d(TAG, "Navigation changed to: $currentDestination")
+        Log.d(
+            TAG,
+            "Current back stack: ${navController.currentBackStack.value.map { it.destination.route }}"
+        )
+    }
 
     // Collect states
     val onBoardingComplete by viewModel.onboardingComplete.collectAsStateWithLifecycle()
@@ -61,13 +75,12 @@ fun MyApp(
     val isFormValid by viewModel.isFormValid.collectAsStateWithLifecycle()
     val menuItems by viewModel.menuItems.collectAsStateWithLifecycle()
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
-    // Use the cart item count from ViewModel instead of calculating it here
     val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
     val searchPhrase by viewModel.searchPhrase.collectAsStateWithLifecycle()
 
     // Updated showProfile logic - show on all screens except Profile and Onboarding
     val showProfile = currentDestination != Profile.route && currentDestination != Onboarding.route
-    // Determine when to show the cart (unchanged as requested)
+    // Determine when to show the cart
     val showCart = currentDestination != Checkout.route && currentDestination != Onboarding.route
 
     Scaffold(
@@ -82,7 +95,6 @@ fun MyApp(
                     navController.navigateSingleTopTo(Profile.route)
                 },
                 onCartClick = {
-                    // Same navigation logic as was previously in the FAB
                     navController.navigateSingleTopTo(Checkout.route)
                 },
                 modifier = Modifier.windowInsetsPadding(
@@ -112,7 +124,10 @@ fun MyApp(
             searchPhrase = searchPhrase,
             onSearchPhraseChange = { phrase -> viewModel.updateSearchPhrase(phrase) },
             cartItems = cartItems,
-            onAddToCart = { menuItem, quantity -> viewModel.addToCart(menuItem, quantity) },
+            onAddToCart = { menuItem, quantity ->
+                Log.d(TAG, "Adding ${menuItem.title} x $quantity to cart")
+                viewModel.addToCart(menuItem, quantity)
+            },
             onClearCart = { viewModel.clearCart() },
             onRemoveFromCart = { cartItem -> viewModel.removeFromCart(cartItem) },
             modifier = modifier.padding(

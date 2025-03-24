@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,20 +49,20 @@ import java.util.Locale
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun MenuItemScreen(
-    itemId:String?,
+    itemId: String?,
     menuItems: List<MenuItemEntity> = emptyList(),
-    onAddToOrder :(MenuItemEntity, Int) -> Unit,
-    ) {
+    onAddToOrder: (MenuItemEntity, Int) -> Unit,
+) {
+    // Direct ID parsing without saving it in mutableState
+    // This ensures we're always using the latest ID from navigation
+    val menuItem = itemId?.toIntOrNull()?.let { id ->
+        menuItems.find { it.id == id }
+    }
     
-    // Save the itemId across configuration changes
-    val savedItemId = rememberSaveable { mutableStateOf(itemId) }
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    val menuItem = savedItemId.value?.toIntOrNull()?.let{ id ->
-        menuItems.find{it.id == id}
-    }
-
+    // Only the quantity needs to be remembered across configuration changes
     var quantity by rememberSaveable { mutableIntStateOf(1) }
 
     if(menuItem == null){
@@ -420,4 +419,3 @@ fun MenuItemScreenLandscapePreview() {
         )
     }
 }
-

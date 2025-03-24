@@ -13,7 +13,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -58,7 +60,7 @@ fun MyAppNavigation(
     cartItems: List<CartItem>,
     onAddToCart: (MenuItemEntity, Int) -> Unit,
     onClearCart: () -> Unit,
-    onRemoveFromCart: (CartItem) -> Unit = {},  // Add this parameter
+    onRemoveFromCart: (CartItem) -> Unit = {},
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -66,27 +68,37 @@ fun MyAppNavigation(
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
+    // Save the initial route to handle configuration changes
+    val startDestination = rememberSaveable {
+        if (userLoggedIn) Home.route else Onboarding.route
+    }
+
     // Create navigation callback functions
     val navigateToOnboarding = { navController.navigateSingleTopTo(Onboarding.route) }
     val navigateToMenuItem = { itemId: String -> navController.navigateToMenuItem(itemId) }
-    // New function for clearing back stack and navigating to Home
-    val navigateToHomeAndClearBackStack = { navController.navigateAndClearBackStack(Home.route) }
+    val navigateToHomeAndClearBackStack = {
+        // Modified to preserve state better
+        navController.navigateToHomeFromCheckout()
+    }
 
     // Handle navigation when onBoardingComplete changes
     LaunchedEffect(onBoardingComplete) {
-        if (onBoardingComplete && currentRoute != Home.route) {
+        if (onBoardingComplete && currentRoute == Onboarding.route) {
             navController.navigate(Home.route) {
                 popUpTo(Onboarding.route) { inclusive = true }
             }
         }
     }
 
+    // Configuration changes monitor
+    val currentOrientation = LocalConfiguration.current.orientation
+    
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = if (userLoggedIn) Home.route else Onboarding.route,
+            startDestination = startDestination,
             modifier = modifier.padding(
                 bottom = padding.calculateBottomPadding(),
                 start = padding.calculateStartPadding(LayoutDirection.Ltr),
@@ -154,7 +166,6 @@ fun MyAppNavigation(
                             )
                         }
                         onClearCart()
-                        // Use the new navigation function that clears the back stack
                         navigateToHomeAndClearBackStack()
                     },
                     onRemoveItem = onRemoveFromCart
@@ -169,7 +180,18 @@ fun MyAppNavigation(
                 MenuItemScreen(
                     itemId = itemId,
                     menuItems = menuItems,
-                    onAddToOrder = onAddToCart
+                    onAddToOrder = { menuItem, quantity ->
+                        onAddToCart(menuItem, quantity)
+                        // Add success feedback
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "${menuItem.title} added to cart",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                        // Navigate back to home after adding to cart
+                        navController.popBackStack()
+                    }
                 )
             }
         }
@@ -199,6 +221,26 @@ fun NavHostController.navigateAndClearBackStack(route: String) {
 fun NavHostController.navigateToMenuItem(itemId: String) {
     this.navigate("${MenuItem.route}/$itemId") {
         launchSingleTop = true
+        // Save and restore state to handle configuration changes
+        restoreState = true
+    }
+}
+
+// New navigation function that properly navigates to Home from Checkout
+fun NavHostController.navigateToHomeFromCheckout() {
+    this.navigate(Home.route) {
+        // Pop up to Home only if it exists in the back stack
+        // This preserves the proper navigation state
+        popUpTo(Home.route) {
+            // Save the state of the Home screen
+            saveState = true
+            // Only include if Home is already in the back stack
+            inclusive = false
+        }
+        // Make sure we don't create multiple copies of Home
+        launchSingleTop = true
+        // Restore the saved state if it exists
+        restoreState = true
     }
 }
 
