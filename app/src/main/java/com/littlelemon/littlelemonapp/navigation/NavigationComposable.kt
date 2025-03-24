@@ -58,6 +58,7 @@ fun MyAppNavigation(
     cartItems: List<CartItem>,
     onAddToCart: (MenuItemEntity, Int) -> Unit,
     onClearCart: () -> Unit,
+    onRemoveFromCart: (CartItem) -> Unit = {},  // Add this parameter
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
@@ -158,7 +159,8 @@ fun MyAppNavigation(
                         onClearCart()
                         // Use the new navigation function that clears the back stack
                         navigateToHomeAndClearBackStack()
-                    }
+                    },
+                    onRemoveItem = onRemoveFromCart
                 )
             }
 

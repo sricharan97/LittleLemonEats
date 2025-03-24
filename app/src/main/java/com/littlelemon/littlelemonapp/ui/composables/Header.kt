@@ -9,7 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,9 +28,12 @@ import com.littlelemon.littlelemonapp.R
 fun Header(
     modifier: Modifier = Modifier,
     showProfile: Boolean = false,
+    showCart: Boolean = false,
+    cartItemCount: Int = 0,
     firstName: String = "",
     lastName: String = "",
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    onCartClick: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier
@@ -32,28 +41,17 @@ fun Header(
             .height(80.dp)
             .padding(top = 8.dp)
     ) {
-
-        Box(
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.little_lemon_logo),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-
-            )
-
+            // Left side - Profile avatar
             if (showProfile) {
-
-                Row(
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(start = 16.dp)
+                        .weight(0.2f)
                 ) {
                     ProfileAvatar(
                         firstName = firstName,
@@ -64,9 +62,52 @@ fun Header(
                         displayInitialAt = "home"
                     )
                 }
+            } else {
+                Box(modifier = Modifier.weight(0.2f))
             }
 
+            // Center - Logo
+            Box(
+                modifier = Modifier
+                    .weight(0.6f)
+                    .padding(horizontal = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.little_lemon_logo),
+                    contentDescription = "Little Lemon Logo",
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(vertical = 16.dp)
+                )
+            }
 
+            // Right side - Cart icon
+            if (showCart) {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .weight(0.2f)
+                        .clickable { onCartClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    BadgedBox(
+                        badge = {
+                            if (cartItemCount > 0) {
+                                Badge { Text("$cartItemCount") }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingCart,
+                            contentDescription = "Cart"
+                        )
+                    }
+                }
+            } else {
+                Box(modifier = Modifier.weight(0.2f))
+            }
         }
     }
 }

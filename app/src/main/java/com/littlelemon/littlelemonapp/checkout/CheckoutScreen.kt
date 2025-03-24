@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,7 +35,8 @@ import java.util.Locale
 @Composable
 fun CheckoutScreen(
     cartItems: List<CartItem> = emptyList(),
-    onPlaceOrder: () -> Unit = {}
+    onPlaceOrder: () -> Unit = {},
+    onRemoveItem: (CartItem) -> Unit = {}
 ) {
     // Get current orientation
     val configuration = LocalConfiguration.current
@@ -47,6 +52,7 @@ fun CheckoutScreen(
                 // Cart items - take up more space in landscape
                 CartItemsList(
                     cartItems = cartItems,
+                    onRemoveItem = onRemoveItem,
                     modifier = Modifier.weight(0.7f)
                 )
 
@@ -87,7 +93,10 @@ fun CheckoutScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(cartItems) { item ->
-                            CartItemCard(item = item)
+                            CartItemCard(
+                                item = item,
+                                onRemove = { onRemoveItem(item) }
+                            )
                         }
                     }
 
@@ -129,6 +138,7 @@ fun CheckoutScreen(
 @Composable
 private fun CartItemsList(
     cartItems: List<CartItem>,
+    onRemoveItem: (CartItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -157,7 +167,10 @@ private fun CartItemsList(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(cartItems) { item ->
-                    CartItemCard(item = item)
+                    CartItemCard(
+                        item = item,
+                        onRemove = { onRemoveItem(item) }
+                    )
                 }
             }
         }
@@ -215,7 +228,10 @@ private fun OrderSummary(
 }
 
 @Composable
-private fun CartItemCard(item: CartItem) {
+private fun CartItemCard(
+    item: CartItem,
+    onRemove: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -226,7 +242,7 @@ private fun CartItemCard(item: CartItem) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.menuItem.title,
                     style = MaterialTheme.typography.titleMedium,
@@ -237,11 +253,25 @@ private fun CartItemCard(item: CartItem) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
             Text(
                 text = formatPrice(item.menuItem.price.toDouble() * item.quantity),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 8.dp)
             )
+
+            // Add remove button
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier.padding(start = 4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove item",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }
@@ -261,3 +291,4 @@ fun CheckoutScreenPreview() {
 fun LandscapeCheckoutScreenPreview() {
     CheckoutScreen()
 }
+

@@ -67,6 +67,10 @@ class MainViewModel(
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems = _cartItems.asStateFlow()
 
+    // Add cart item count state
+    private val _cartItemCount = MutableStateFlow(0)
+    val cartItemCount: StateFlow<Int> = _cartItemCount.asStateFlow()
+
     val menuItems = menuFetch.menuItems.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -190,12 +194,28 @@ class MainViewModel(
             currentCart.add(CartItem(menuItem, quantity))
         }
         _cartItems.value = currentCart
+        // Update cart item count
+        updateCartItemCount()
+    }
+
+    fun removeFromCart(cartItem: CartItem) {
+        val currentCart = _cartItems.value.toMutableList()
+        currentCart.remove(cartItem)
+        _cartItems.value = currentCart
+        // Update cart item count
+        updateCartItemCount()
     }
 
     fun clearCart() {
         _cartItems.value = emptyList()
+        // Update cart item count
+        _cartItemCount.value = 0
     }
 
+    // Helper method to update the cart item count
+    private fun updateCartItemCount() {
+        _cartItemCount.value = _cartItems.value.sumOf { it.quantity }
+    }
 }
 
 class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
@@ -213,3 +233,4 @@ class MainViewModelFactory(private val context: Context) : ViewModelProvider.Fac
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+

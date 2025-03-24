@@ -11,15 +11,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -69,47 +61,34 @@ fun MyApp(
     val isFormValid by viewModel.isFormValid.collectAsStateWithLifecycle()
     val menuItems by viewModel.menuItems.collectAsStateWithLifecycle()
     val cartItems by viewModel.cartItems.collectAsStateWithLifecycle()
-    val cartItemCount = cartItems.sumOf { it.quantity }
+    // Use the cart item count from ViewModel instead of calculating it here
+    val cartItemCount by viewModel.cartItemCount.collectAsStateWithLifecycle()
     val searchPhrase by viewModel.searchPhrase.collectAsStateWithLifecycle()
+
+    // Updated showProfile logic - show on all screens except Profile and Onboarding
+    val showProfile = currentDestination != Profile.route && currentDestination != Onboarding.route
+    // Determine when to show the cart (unchanged as requested)
+    val showCart = currentDestination != Checkout.route && currentDestination != Onboarding.route
 
     Scaffold(
         topBar = {
             Header(
-                showProfile = currentDestination == Home.route,
+                showProfile = showProfile,
+                showCart = showCart,
+                cartItemCount = cartItemCount,
                 firstName = firstName,
                 lastName = lastName,
-                onProfileClick = {
+                onProfileClick = { 
                     navController.navigateSingleTopTo(Profile.route)
+                },
+                onCartClick = {
+                    // Same navigation logic as was previously in the FAB
+                    navController.navigateSingleTopTo(Checkout.route)
                 },
                 modifier = Modifier.windowInsetsPadding(
                     WindowInsets.statusBars.only(WindowInsetsSides.Top)
                 )
             )
-        },
-        floatingActionButton = {
-            if (currentDestination != Checkout.route && currentDestination != Onboarding.route) {  // Don't show on checkout or onboarding screens
-                FloatingActionButton(
-                    onClick = {
-                        // Updated to use extension function for consistent navigation behavior
-                        navController.navigateSingleTopTo(Checkout.route)
-                    },
-                    modifier = Modifier.padding(bottom = 120.dp),
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    BadgedBox(
-                        badge = {
-                            if (cartItemCount > 0) {
-                                Badge { Text("$cartItemCount") }
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ShoppingCart,
-                            contentDescription = "Cart"
-                        )
-                    }
-                }
-            }
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0) // Reset default window insets
     ) { scaffoldPadding ->
@@ -135,6 +114,7 @@ fun MyApp(
             cartItems = cartItems,
             onAddToCart = { menuItem, quantity -> viewModel.addToCart(menuItem, quantity) },
             onClearCart = { viewModel.clearCart() },
+            onRemoveFromCart = { cartItem -> viewModel.removeFromCart(cartItem) },
             modifier = modifier.padding(
                 top = scaffoldPadding.calculateTopPadding(),
                 bottom = 0.dp
