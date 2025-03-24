@@ -67,10 +67,7 @@ fun MyAppNavigation(
     val currentRoute = currentBackStackEntry?.destination?.route
 
     // Create navigation callback functions
-    val navigateToHome = { navController.navigateSingleTopTo(Home.route) }
-    val navigateToProfile = { navController.navigateSingleTopTo(Profile.route) }
     val navigateToOnboarding = { navController.navigateSingleTopTo(Onboarding.route) }
-    val navigateToCheckout = { navController.navigateSingleTopTo(Checkout.route) }
     val navigateToMenuItem = { itemId: String -> navController.navigateToMenuItem(itemId) }
     // New function for clearing back stack and navigating to Home
     val navigateToHomeAndClearBackStack = { navController.navigateAndClearBackStack(Home.route) }
