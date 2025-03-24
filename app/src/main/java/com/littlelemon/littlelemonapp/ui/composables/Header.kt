@@ -1,5 +1,6 @@
 package com.littlelemon.littlelemonapp.ui.composables
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Badge
@@ -20,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.littlelemon.littlelemonapp.R
@@ -35,11 +38,18 @@ fun Header(
     onProfileClick: () -> Unit = {},
     onCartClick: () -> Unit = {}
 ) {
+    // Check if device is in landscape mode
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    // Adjust header height based on orientation
+    val headerHeight = if (isLandscape) 60.dp else 80.dp
+    
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(80.dp)
-            .padding(top = 8.dp)
+            .height(headerHeight)
+            .padding(top = if (isLandscape) 4.dp else 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -58,7 +68,8 @@ fun Header(
                         lastName = lastName,
                         modifier = Modifier
                             .clickable { onProfileClick() },
-                        size = 40,
+                        // Smaller avatar in landscape
+                        size = if (isLandscape) 32 else 40,
                         displayInitialAt = "home"
                     )
                 }
@@ -73,14 +84,26 @@ fun Header(
                     .padding(horizontal = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.little_lemon_logo),
-                    contentDescription = "Little Lemon Logo",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .padding(vertical = 16.dp)
-                )
+                // Adjust logo sizing and scale for landscape
+                if (isLandscape) {
+                    Image(
+                        painter = painterResource(id = R.drawable.little_lemon_logo),
+                        contentDescription = "Little Lemon Logo",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .size(width = 200.dp, height = 45.dp)
+                            .padding(vertical = 8.dp)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.little_lemon_logo),
+                        contentDescription = "Little Lemon Logo",
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .padding(vertical = 16.dp)
+                    )
+                }
             }
 
             // Right side - Cart icon
@@ -101,7 +124,9 @@ fun Header(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ShoppingCart,
-                            contentDescription = "Cart"
+                            contentDescription = "Cart",
+                            // Smaller icon in landscape if needed
+                            modifier = if (isLandscape) Modifier.size(22.dp) else Modifier
                         )
                     }
                 }

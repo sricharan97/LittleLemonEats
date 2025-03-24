@@ -1,8 +1,10 @@
 package com.littlelemon.littlelemonapp.ui.home
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,10 +30,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -97,7 +101,7 @@ fun HomeScreen(
                     placeholder = { Text("Search menu") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top =24.dp),
+                        .padding(top = 24.dp),
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -188,6 +192,10 @@ fun HomeScreen(
 fun MenuDish(
     menuItem: MenuItemEntity,
     onClick: () -> Unit = {}) {
+    // Get current device orientation
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    
     Card(
         modifier = Modifier.clickable(onClick = onClick)
     ) {
@@ -215,19 +223,32 @@ fun MenuDish(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            // Use GlideImage to load from URL
-            GlideImage(
-                model = menuItem.imageUrl,
-                contentDescription = menuItem.title,
+
+            // Determine the image source based on menu item title
+            val imageModel = when (menuItem.title) {
+                "Lemon Desert" -> R.drawable.lemondessert
+                "Grilled Fish" -> R.drawable.grilledfish
+                else -> menuItem.imageUrl
+            }
+
+            // Use Box to constrain image dimensions while maintaining aspect ratio
+            Box(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(if (isLandscape) 0.7f else 1f)
                     .padding(start = 8.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .size(80.dp),
-                contentScale = ContentScale.Crop,
-                failure = placeholder(R.drawable.error),
-                loading = placeholder(R.drawable.placeholder)
-            )
+            ) {
+                GlideImage(
+                    model = imageModel,
+                    contentDescription = menuItem.title,
+                    modifier = Modifier
+                        .size(if (isLandscape) 60.dp else 80.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .align(Alignment.Center),
+                    contentScale = ContentScale.FillBounds,
+                    failure = placeholder(R.drawable.error),
+                    loading = placeholder(R.drawable.placeholder)
+                )
+            }
         }
     }
     HorizontalDivider(
@@ -365,3 +386,4 @@ fun HomeScreenPreview() {
         )
     }
 }
+
