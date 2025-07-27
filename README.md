@@ -8,6 +8,12 @@
 
 The **Little Lemon Food Ordering App** is a user-friendly, intuitive mobile application designed to simplify the dining experience at Little Lemon Restaurant. Customers can browse the menu, customize orders, and complete secure transactions with just a few taps. Built as part of a Coursera's Meta Android developer Capstone Project course, this app demonstrates modern Android development principles and technologies.
 
+## 🎥 Video Walkthrough
+
+Watch the app in action! This demo video showcases all the key features and functionality of the Little Lemon Food Ordering App:
+
+[![Little Lemon App Demo](https://img.youtube.com/vi/4MHrAcU8hxI/maxresdefault.jpg)](https://youtube.com/shorts/4MHrAcU8hxI)
+
 ## Key Features and Functionalities
 
 ### Interactive Menu Browsing
